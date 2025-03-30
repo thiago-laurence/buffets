@@ -1,0 +1,67 @@
+<?php 
+	include("../php/conexion_bdd.php");
+    include("../php/conexion_bdd_escuela.php");
+
+	$query_pedido=mysqli_query($con, "SELECT tipo_usuario.id_tipo_usuario, estado_pago.id, pedido.estado_pago, pedido.dni, pedido.id_pedido, menu.plato,
+        estado_pedido.id_estado_pedido, estado_pedido.estado_pedido FROM estado_pago INNER JOIN pedido ON estado_pago.id=pedido.estado_pago INNER JOIN usuario ON usuario.dni=pedido.dni INNER JOIN tipo_usuario ON usuario.tipo_usuario=tipo_usuario.id_tipo_usuario INNER JOIN menu ON pedido.id_menu=menu.id_menu 
+      INNER JOIN estado_pedido ON pedido.estado=estado_pedido.id_estado_pedido
+      WHERE usuario.dni=pedido.dni AND pedido.id_menu=menu.id_menu AND estado_pago.id=2 
+        AND pedido.estado=4 ORDER BY menu.plato asc;");
+
+    $contador = 0;
+    while ($row=mysqli_fetch_array($query_pedido)) {
+        $dni=$row['dni'];
+        $estado_pedido=$row['estado_pedido'];
+        $id_estado_pago=$row['id'];
+        $id_estado_pedido=$row['id_estado_pedido'];
+        $plato=$row['plato'];
+        $id_pedido=$row['id_pedido'];
+        $estado_pago=$row['estado_pago'];
+        $id_tipo_usuario=$row['id_tipo_usuario'];
+
+        $contador++;
+
+        if ($id_tipo_usuario==2) {
+            $sql="SELECT personal.nombre, personal.apellido FROM personal WHERE personal.dni='".$dni."';";
+            $query_personal=mysqli_query($con2, $sql);
+            $row2=mysqli_fetch_array($query_personal);
+        }else{
+            $sql="SELECT alumnos.nombre, alumnos.apellido FROM alumnos WHERE alumnos.dni='".$dni."';";
+            $query_alumno=mysqli_query($con2, $sql);
+            $row2=mysqli_fetch_array($query_alumno);
+        }
+
+        $nombre_completo=$row2['nombre']." ".$row2['apellido'];
+    echo "
+    <tr>
+        <td>".$dni."</td>
+        <td>".$nombre_completo."</td>
+        <td>".$plato."</td>
+        <td>
+            <select class='form-control id_estado_pedido' data-contador='".$contador."' name='estado_pedido' data-id_pedido='".$row['id_pedido']."'>
+                <option value='".$id_estado_pedido."'>"
+                .$estado_pedido.
+                "</option>";
+                $query_estado_pedido=mysqli_query($con, "SELECT id_estado_pedido AS ID, estado_pedido AS ESTADO FROM estado_pedido");
+                while ($row=mysqli_fetch_array($query_estado_pedido)) {
+                    echo "<option value='".$row['ID']."'>".$row['ESTADO']."</option>";
+                }
+                echo "
+            </select>
+        </td>
+        <td style='display: none;'>
+            <select class='form-control id_estado_pago' name='estado_pago' data-contador='".$contador."' data-id_pedido2='".$id_pedido."'>
+                    <option value='".$id_estado_pago."'>"
+                    .$estado_pago.
+                    "</option>";
+                    $query_estado_pago=mysqli_query($con, "SELECT id AS ID, estado AS ESTADO FROM estado_pago");
+                    while ($row=mysqli_fetch_array($query_estado_pago)) {
+                        echo "<option value='".$row['ID']."'>".$row['ESTADO']."</option>";
+                    }
+                echo "
+            </select>
+        </td>
+    </tr>
+    ";
+    }
+?>

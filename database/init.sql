@@ -1,0 +1,7 @@
+CREATE USER IF NOT EXISTS 'user-buffets'@'%' IDENTIFIED BY 'password';
+CREATE USER IF NOT EXISTS 'user-escuela'@'%' IDENTIFIED BY 'password';
+
+GRANT ALL PRIVILEGES ON *.* TO 'user-buffets'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'user-escuela'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
